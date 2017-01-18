@@ -1,4 +1,5 @@
-from pylab import *
+import matplotlib.pyplot as plt
+import numpy as np
 from random import choice
 from numpy import array, dot, random, copy
 
@@ -45,13 +46,13 @@ def plot_items(items, w):
 		else:
 			color.append('r')
 
-	xlim(-1,1)
-	ylim(-1,1)
+	plt.xlim(-1,1)
+	plt.ylim(-1,1)
 	a, b = -w[1]/w[2], -w[0]/w[2]
 	l = np.linspace(-1,1)
 	plt.plot(l, a*l+b, c="green")
-	scatter(x, y, s=100, marker='o', c=color)
-	show()
+	plt.scatter(x, y, s=100, marker='o', c=color)
+	plt.show()
 
 training_set1 = [
 	(array([1,0.3,0.3,]), 1), 
