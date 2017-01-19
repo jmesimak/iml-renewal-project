@@ -12,7 +12,7 @@ def load_data():
 	label_names = news20.target_names
 	labels = np.array(news20.target)
 	posts = np.array(news20.data)
-	sample_size = 5000
+	sample_size = len(posts)
 	print "Taking a sample of size {} from the 20newsgroups subset: {}".format(sample_size, subset)
 	idx = np.random.choice(np.arange(len(posts)), sample_size, replace=False)
 	posts = posts[idx]
@@ -98,11 +98,21 @@ def write_most_freq_words(occurrences, labels):
 			f.write(pprint.pformat(occurrences[label].most_common()[:200]))
 			f.close()
 
+def init_confusion_matrix(size):
+	confusion_matrix = []
+	for i in range(size):
+		row = []
+		for j in range(size):
+			row.append(0)
+		confusion_matrix.append(row)
+	return confusion_matrix
+
 newsgroup_posts, newsgroup_labels, label_names = load_data()
 train, test, organized = construct_sets(newsgroup_posts, newsgroup_labels)
 all_occurrences, word_occurrences = calculate_word_occurrences(train)
 
 # write_most_freq_words(word_occurrences, newsgroup_data.target_names)
+confusion_matrix = init_confusion_matrix(len(label_names))
 
 correct = 0
 print "Making predictions for {} items in the test set".format(len(test))
@@ -110,7 +120,9 @@ for post, expected in test:
 	predicted = classify(post, word_occurrences, all_occurrences, organized, len(train), label_names)
 	if predicted == expected:
 		correct += 1
+	confusion_matrix[expected][predicted] += 1
 
+print pp.pprint(confusion_matrix)
 print "Got {} correct predictions out of {} items, leading to {} correct predictions".format(correct, len(test), correct / float(len(test)))
 
 
