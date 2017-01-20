@@ -52,14 +52,16 @@ def train(items):
 	train_rate = 0.1
 	w = random.rand(len(items[0][0]))
 	converges = False
-
+	iters = 0
 	while not converges:
+		iters += 1
 		x, expected = choice(items)
 		result = dot(w, x)
 		error = expected - classify(result)
 		w += train_rate * error * x
 		converges = all_correct(items, w)
 
+	print iters
 	mnist.visualize(w)
 	return w
 

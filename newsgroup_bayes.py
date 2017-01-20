@@ -42,6 +42,20 @@ def construct_sets(newsgroup_posts, newsgroup_labels):
 	print "Constructed training set of size {} and test set of size {}".format(len(train), len(test))
 	return train, test, organized
 
+def count_label_posts(posts):
+	label_posts_count = {}
+	for p in posts:
+		if p[1] not in label_posts_count:
+			label_posts_count[p[1]] = 0
+		label_posts_count[p[1]] += 1
+	return label_posts_count
+
+def show_cat_priori(label_posts_count, label_names, total_posts):
+	for l in label_posts_count.keys():
+		priori = label_posts_count[l] / float(total_posts)
+		print "Priori for {} is {}".format(label_names[l], int(priori*1000)/1000.00)
+
+
 def calculate_word_occurrences(training_set):
 	print "Calculating word occurrences for training set which contains {} items".format(len(training_set))
 	occurrences = {}
@@ -71,7 +85,7 @@ def calculate_word_occurrences(training_set):
 	print "After Laplace smoothing we consider the total amount of words: {}".format(sum(all_occurrences.values()))
 	return all_occurrences, occurrences
 
-def classify(post, word_occurrences, all_occurrences, organized, post_amt, label_names):
+def classify(post, word_occurrences, all_occurrences, organized, post_amt, label_names, label_posts_count):
 	words = post.split()
 	scores = {}
 	for word in words:
@@ -86,7 +100,8 @@ def classify(post, word_occurrences, all_occurrences, organized, post_amt, label
 			scores[label] += log(occurrences_at_label / occurrences_in_total)
 
 	for label in scores:
-		scores[label] += log(len(organized[label]) / float(post_amt))
+		priori = label_posts_count[label] / float(post_amt)
+		scores[label] += log(priori)
 
 	return max(scores, key=scores.get)
 
@@ -109,15 +124,19 @@ def init_confusion_matrix(size):
 
 newsgroup_posts, newsgroup_labels, label_names = load_data()
 train, test, organized = construct_sets(newsgroup_posts, newsgroup_labels)
+label_posts_count = count_label_posts(train)
+
 all_occurrences, word_occurrences = calculate_word_occurrences(train)
 
 # write_most_freq_words(word_occurrences, newsgroup_data.target_names)
 confusion_matrix = init_confusion_matrix(len(label_names))
 
+show_cat_priori(label_posts_count, label_names, len(train))
+
 correct = 0
 print "Making predictions for {} items in the test set".format(len(test))
 for post, expected in test:
-	predicted = classify(post, word_occurrences, all_occurrences, organized, len(train), label_names)
+	predicted = classify(post, word_occurrences, all_occurrences, organized, len(train), label_names, label_posts_count)
 	if predicted == expected:
 		correct += 1
 	confusion_matrix[expected][predicted] += 1
