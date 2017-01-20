@@ -1,11 +1,11 @@
 # Introduction to Machine Learning 2016 Renewal Project
 
 ## Installation
-´´´
+```
 virtualenv venv
 ./venv/bin/activate
 pip install -r requirements.txt
-´´´
+```
 Ready to go.
 
 ## 1: Perceptron /w MNIST 0 / 1 classifier
